@@ -1,22 +1,26 @@
 import { View, Text, ImageBackground, StyleSheet, Image, SafeAreaView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 
+
 import axios from 'axios';
 import LinearGradient from 'react-native-linear-gradient';
 
 
 import LocationGps from "../assets/images/location-gps.svg";
+import TempIcon from "../assets/images/thermostat.svg"
+import WindIcon from "../assets/images/wind.svg"
+import HumidityIcon from "../assets/images/humidity.svg"
 
-export default function Home() {
+
+export default function Home({currentWheather,hours}) {
     const Months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     const [currentDate,setCurrentDate] = useState()
 
-
-    const apiKey = '7ee3668b95174ccab3961309241302'; // Replace with your actual API key
+    const apiKey = '7ee3668b95174ccab3961309241302'; 
     const city = 'Kochi';
     const days = 1;
-    const aqi = false; // Set to 'no' to exclude air quality index
-    const alerts = false; // Set to 'no' to exclude alerts
+    const aqi = false; 
+    const alerts = false; 
     const url = `http://api.weatherapi.com/v1/forecast.json?key=${apiKey}&q=${city}&days=${days}&aqi=${aqi}&alerts=${alerts}`;
 
 
@@ -35,7 +39,7 @@ export default function Home() {
           month + ' '+ date+','+' '+ hours+':'+min+am_pm
         );
 
-
+        
 
         axios.get(url)
         .then(response => {
@@ -50,6 +54,26 @@ export default function Home() {
 
     const date = new Date().getDate(); 
 
+    const mainImage = () => {
+
+            if(currentWheather.condition === "rain") {
+                return <Image style={styles.centerImage} source={require('../assets/images/rain.png')} />
+            }
+            else if (currentWheather.condition === "thunder") {
+                return <Image style={styles.centerImage} source={require('../assets/images/thunder.png')} />
+            }
+            else if (currentWheather.condition === "lighting") {
+                return <Image style={styles.centerImage} source={require('../assets/images/lighting.png')} />
+            }
+            else if (currentWheather.condition === "snow") {
+                return <Image style={styles.centerImage} source={require('../assets/images/snow.png')} />
+            } 
+            else if (currentWheather.condition === "rainy-cloud") {
+                return <Image style={styles.centerImage} source={require('../assets/images/rainy-cloud.png')} />
+            } 
+           
+    }
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -61,10 +85,34 @@ export default function Home() {
                 </View>
                 <LocationGps  width={18} style={styles.locationIcon} />
             </View>
-            <View>
-                
+            <View style={styles.imageContainer}>
+             {mainImage()}
             </View>
-            </LinearGradient>
+            <View style={styles.centerThreeMain}>
+                <View style={styles.threeItems}>
+                    <View style={styles.icontextConatiner}>
+                        <Text style={styles.mainThreeText}>Temp</Text>
+                        <TempIcon style={styles.threeIcons} width={20} />
+                    </View>
+                    <Text style={styles.threeSmallTexts}>{currentWheather.temp}{'\u00b0'}</Text>
+                </View>
+                <View style={styles.threeItems}>
+                    <View style={styles.icontextConatiner}>
+                        <Text style={styles.mainThreeText}>Wind </Text>
+                        <WindIcon width={18} />
+                    </View>
+                    <Text style={styles.threeSmallTexts}>{currentWheather.wind} km/h</Text>
+                </View>
+                <View style={styles.threeItems}>
+                    <View style={styles.icontextConatiner}>
+                        <Text style={styles.mainThreeText}>Humidity </Text>
+                        <HumidityIcon width={18}/>
+                    </View>
+                    <Text style={styles.threeSmallTexts}>{currentWheather.humidity}%</Text>
+                </View>
+            </View>
+            
+        </LinearGradient>
    </SafeAreaView>
   )
 }
@@ -103,5 +151,40 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#ffffff",
     fontFamily: 'Gordita-Regular',
+  },
+  imageContainer: {
+    marginTop: 12,
+    alignItems:'center'
+  },
+  centerImage: {
+    height:150,
+    width: 150,
+  },
+  centerThreeMain: {
+    flexDirection: 'row',
+    justifyContent: "space-between",
+    margin: 32,
+  },
+  threeItems: {
+
+  },
+  icontextConatiner: {
+    flexDirection:'row'
+  },
+  mainThreeText: {
+    color: "#fff",
+    opacity: 0.5,
+    fontSize: 14,
+    fontFamily: 'Gordita-Regular',
+  },
+  threeIcons: {
+    opacity: 0.8,
+  },
+  threeSmallTexts: {
+    color:"#fff",
+    fontSize: 16,
+    textAlign: "center",
+    fontFamily: 'Gordita-Regular',
   }
+
 })

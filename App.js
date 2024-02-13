@@ -108,7 +108,7 @@ export default function App() {
                 temp: 28,
                 wind: 7.90,
                 humidity: 84,
-                condition: "rain_sun",
+                condition: "rain",
             },
             {
                 temp: 25,
@@ -142,8 +142,10 @@ export default function App() {
             },
         ]
     )
+    const [currentWheather,setCurrentWheather] = useState(data[0])
+        console.log(currentWheather)
   return (
-    <Home />
+    <Home currentWheather={currentWheather} hours={hours} />
   )
 }
 
