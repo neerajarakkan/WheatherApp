@@ -13,6 +13,13 @@ import Forecast from './src/components/Forecast';
 import Widgets from './src/components/Widgets';
 import Notification from './src/components/Notification';
 
+import HomeLight from "./src/assets/images/home-light.svg";
+import HomeDark from "./src/assets/images/home-dark.svg";
+import NotficationLight from "./src/assets/images/notifications-light.svg";
+import NotficationDark from "./src/assets/images/notifications-dark.svg";
+import WidgetDark from "./src/assets/images/widget-dark.svg";
+import WidgetLight from "./src/assets/images/widget-light.svg";
+
 
 export default function App() {
 
@@ -23,18 +30,49 @@ export default function App() {
    
     const  HomeTabs = () => (
         <Tab.Navigator
-            screenOptions={
-                {
-                    tabBarStyle: { 
-                        backgroundColor: 'transparent',
-                         position: 'absolute',
-                         borderTopWidth: 0,
-                         elevation: 0 }
-                         ,}
-                         } 
-                         > 
+            screenOptions={({route}) =>({
+                tabBarStyle: { 
+                    backgroundColor: 'transparent',
+                     position: 'absolute',
+                     borderTopWidth: 0,
+                     elevation: 0 },
+                     tabBarShowLabel: false,
+                tabBarIcon: ({focused}) => {
+
+                    if(route.name === 'Home') {
+                       
+                        if(focused == true) {
+                            return <HomeLight />
+                        }
+                        else {
+                            return <HomeDark />
+                        }
+                       
+                    }
+                    else if (route.name === 'Widgets'){
+                       
+                        if(focused == true) {
+                            return <WidgetLight />
+                        }
+                        else {
+                            return <WidgetDark />
+                        }
+                       
+                    }
+                    else if (route.name === 'Notification'){
+                       
+                        if(focused == true) {
+                            return <NotficationLight />
+                        }
+                        else {
+                            return <NotficationDark />
+                        }
+                       
+                    }
+                }
+            }) } > 
             <Tab.Screen  
-                name="Home" 
+                name="Home"                                       
                 component={Home} 
                 initialParams={[currentWheather,hours]} 
                 options={{headerShown:false,}} 
@@ -42,9 +80,11 @@ export default function App() {
             <Tab.Screen 
                 name="Widgets" 
                 component={Widgets}  
+                initialParams={[locationData]} 
                 options={{headerShown:false,}}  
                 />
             <Tab.Screen 
+                initialParams={[notificationData]}
                 name="Notification" 
                 component={Notification} 
                 options={{headerShown:false,}} 
@@ -208,27 +248,71 @@ export default function App() {
     const [locationData,setLocationData] = useState(
         [
             {
+                id:1,
                 place: "Kochi,Kerala",
                 condition: "Thunder Storm",
                 temp: "29",
             },
             {
+                id:2,
                 place: "Wayanand,Kerala",
                 condition: "Snow",
                 temp: "02",
             },
             {
+                id:3,
                 place: "Kozikode,Kerala",
                 condition: "Rainning",
                 temp: "21",
             },
             {
+                id:4,
                 place: "Kollam,Kerala",
                 condition: "Sunny",
                 temp: "30",
             },
         ]
     )
+
+    const [notificationData,setNotificationData] = useState([
+        {
+            id: 1,
+            condition:'rain',
+            title: 'A Storm is approaching',
+            descrption: "A high frequency storm is likely to approach your city with a magnitude of  6.0. it is likely to deal damage to weak structures. Please stay safe indoor or under shelter"
+        },
+        {
+            id: 2,
+            condition:'thunder',
+            title: 'There will be snow tommaorrow',
+            descrption: "A high frequency storm is likely to approach your city with a magnitude of  6.0. it is likely to deal damage to weak structures. Please stay safe indoor or under shelter"
+        },
+        {
+            id: 3,
+            condition:'lighting',
+            title: "it's a sunny day",
+            descrption: "A high frequency storm is likely to approach your city with a magnitude of  6.0. it is likely to deal damage to weak structures. Please stay safe indoor or under shelter"
+        },
+        {
+            id: 4,
+            condition:'snow',
+            title: 'A Storm is approaching',
+            descrption: "A high frequency storm is likely to approach your city with a magnitude of  6.0. it is likely to deal damage to weak structures. Please stay safe indoor or under shelter"
+        },
+        {
+            id: 5,
+            condition:'snow',
+            title: 'A Storm is approaching',
+            descrption: "A high frequency storm is likely to approach your city with a magnitude of  6.0. it is likely to deal damage to weak structures. Please stay safe indoor or under shelter"
+        },
+        {
+            id: 6,
+            condition:'snow',
+            title: 'A Storm is approaching',
+            descrption: "A high frequency storm is likely to approach your city with a magnitude of  6.0. it is likely to deal damage to weak structures. Please stay safe indoor or under shelter"
+        }
+    ])    
+
     const [currentWheather,setCurrentWheather] = useState(data[0])
         
   return (
