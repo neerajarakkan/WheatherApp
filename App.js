@@ -8,10 +8,12 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+
 import Home from './src/components/Home';
 import Forecast from './src/components/Forecast';
 import Widgets from './src/components/Widgets';
 import Notification from './src/components/Notification';
+
 
 import HomeLight from "./src/assets/images/home-light.svg";
 import HomeDark from "./src/assets/images/home-dark.svg";

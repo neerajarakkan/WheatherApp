@@ -4,7 +4,6 @@ import { View, Text, ImageBackground, StyleSheet, Image, SafeAreaView, Button, T
 import React, { useEffect, useState } from 'react'
 
 
-import axios from 'axios';
 import LinearGradient from 'react-native-linear-gradient';
 
 

@@ -1,5 +1,7 @@
 import { View, Text,SafeAreaView, StyleSheet, ScrollView, Image, ImageBackground } from 'react-native'
 import React from 'react'
+
+
 import LinearGradient from 'react-native-linear-gradient';
 
 

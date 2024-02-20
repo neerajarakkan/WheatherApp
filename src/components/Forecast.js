@@ -2,10 +2,9 @@ import { View, Text,ScrollView,StyleSheet,Image, SafeAreaView, TouchableOpacity 
 import React from 'react'
 
 
-
 import moment from 'moment';
-
 import LinearGradient from 'react-native-linear-gradient';
+
 
 export default function Forecast({navigation,route}) {
 
