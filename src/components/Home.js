@@ -1,4 +1,6 @@
-import { View, Text, ImageBackground, StyleSheet, Image, SafeAreaView } from 'react-native'
+import { View, Text, ImageBackground, StyleSheet, Image, SafeAreaView, Button, TouchableOpacity, ScrollView } from 'react-native'
+
+
 import React, { useEffect, useState } from 'react'
 
 
@@ -12,9 +14,12 @@ import WindIcon from "../assets/images/wind.svg"
 import HumidityIcon from "../assets/images/humidity.svg"
 
 
-export default function Home({currentWheather,hours}) {
+export default function Home({navigation,route}) {
     const Months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"]
     const [currentDate,setCurrentDate] = useState()
+
+    const currentWheather = route["params"][0]
+    const hoursWheater = route["params"][1]
 
     const apiKey = '7ee3668b95174ccab3961309241302'; 
     const city = 'Kochi';
@@ -40,14 +45,8 @@ export default function Home({currentWheather,hours}) {
         );
 
         
-
-        axios.get(url)
-        .then(response => {
-            const data = response["data"]["forecast"]
-        })
-        .catch(error => {
-            console.error(error); // Handle any errors
-        });
+            
+        
 
       }, []);
 
@@ -72,8 +71,51 @@ export default function Home({currentWheather,hours}) {
                 return <Image style={styles.centerImage} source={require('../assets/images/rainy-cloud.png')} />
             } 
            
+    };
+    const ImageRender = (condition) => {
+        if(condition === "rain") {
+            return <Image style={styles.hourImage} source={require('../assets/images/rain.png')} />
+        }
+        else if (condition === "thunder") {
+            return <Image style={styles.hourImage} source={require('../assets/images/thunder.png')} />
+        }
+        else if (condition === "lighting") {
+            return <Image style={styles.hourImage} source={require('../assets/images/lighting.png')} />
+        }
+        else if (condition === "snow") {
+            return <Image style={styles.hourImage} source={require('../assets/images/snow.png')} />
+        } 
+        else if (condition === "rainy-cloud") {
+            return <Image style={styles.hourImage} source={require('../assets/images/rainy-cloud.png')} />
+        } 
     }
-
+    const hoursRender = () => {
+        return hoursWheater.map((item) => {
+            if(item.current === true) {
+                return (
+                    <View key={item.time} style={[styles.hourContainer,styles.hourContainerCurrent]} >
+                    {ImageRender(item.condition)}
+                    <View style={styles.hourTextContainer} >
+                        <Text style={styles.hourTime}>{item.time}.00</Text>
+                        <Text style={styles.hourTemp}>{item.temp}{'\u00b0'}</Text>
+                    </View>
+                    </View>
+                )
+            }
+            else {
+                return (
+                <View key={item.time} style={styles.hourContainer} >
+                    {ImageRender(item.condition)}
+                    <View style={styles.hourTextContainer} >
+                        <Text style={styles.hourTime}>{item.time}.00</Text>
+                        <Text style={styles.hourTemp}>{item.temp}{'\u00b0'}</Text>
+                    </View>
+                    </View>
+                )
+            }
+            
+        })
+    }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -111,7 +153,17 @@ export default function Home({currentWheather,hours}) {
                     <Text style={styles.threeSmallTexts}>{currentWheather.humidity}%</Text>
                 </View>
             </View>
-            
+            <View>
+                <View style={styles.listTopContainer} >
+                    <Text style={styles.todayText} >Today</Text>
+                    <TouchableOpacity onPress={()=> navigation.navigate('ForecastScreen')}>
+                        <Text style={styles.buttonText}  >view all</Text>
+                    </TouchableOpacity>
+                </View>
+                <ScrollView horizontal={true} style={{marginHorizontal:10,marginTop:18,marginBottom:22,}} showsHorizontalScrollIndicator={false}>
+                    {hoursRender()}
+                </ScrollView>
+            </View>
         </LinearGradient>
    </SafeAreaView>
   )
@@ -185,6 +237,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     fontFamily: 'Gordita-Regular',
+  },
+  listTopContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginHorizontal: 18,
+  },
+  todayText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'Gordita-Medium',
+  },
+  buttonText: {
+    color: '#07072A',
+    fontSize: 12,
+    fontFamily:'Gordita-Regular'
+  },
+  hourContainer: {
+    marginHorizontal: 8,
+    flexDirection: 'row',
+    backgroundColor: '#07072A',
+    paddingVertical: 12,
+    paddingHorizontal: 22,
+    borderRadius: 14,
+  },
+  hourImage: {
+    width: 40,
+    height: 40,
+    marginRight: 12,
+  },
+  hourTime: {
+    color: '#fff',
+    fontFamily: 'Gordita-Regular',
+  },
+  hourTemp: {
+    color: '#fff',
+    fontFamily: 'Gordita-Medium',
+    fontSize: 18,
+  },
+  hourContainerCurrent: {
+    backgroundColor:'#075B94'
   }
 
 })
