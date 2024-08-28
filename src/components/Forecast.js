@@ -1,119 +1,205 @@
-import { View, Text,ScrollView,StyleSheet,Image, SafeAreaView, TouchableOpacity } from 'react-native'
-import React from 'react'
+import {
+    View,
+    Text,
+    ScrollView,
+    StyleSheet,
+    Image,
+    SafeAreaView,
+    TouchableOpacity,
+} from 'react-native';
+import React, {useEffect, useState} from 'react';
 
-
-import moment from 'moment';
+import axios from 'axios';
 import LinearGradient from 'react-native-linear-gradient';
+import Geolocation from '@react-native-community/geolocation';
+
+import {API_HOST, API_KEY, URL} from '../../axiosConfig';
+
+export default function Forecast({navigation, route}) {
 
 
-export default function Forecast({navigation,route}) {
-
-    
-
-    const hoursWheater = route["params"][0]
-    const data = route["params"][1]
-
-     const hoursRender = () => {
-       return hoursWheater.map((item) => {
-            if(item.current === true) {
-                return (
-                    <View key={item.time} style={[styles.hourContainer,styles.hourContainerCurrent]} >
-                    {ImageRender(item.condition)}
-                    <View style={styles.hourTextContainer} >
-                        <Text style={styles.hourTime}>{item.time}.00</Text>
-                        <Text style={styles.hourTemp}>{item.temp}{'\u00b0'}</Text>
-                    </View>
-                    </View>
-                )
-            }
-            else {
-                return (
-                <View key={item.time} style={styles.hourContainer} >
-                    {ImageRender(item.condition)}
-                    <View style={styles.hourTextContainer} >
-                        <Text style={styles.hourTime}>{item.time}.00</Text>
-                        <Text style={styles.hourTemp}>{item.temp}{'\u00b0'}</Text>
-                    </View>
-                    </View>
-                )
-            }
-            
-        })
+    const [locationDetails, setLocationDetails] = useState(null);
+    const [myLocation, setMyLocation] = useState(null);
+    var days = [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+    ];
+    const [data, setData] = useState(null);
+    const {hourData} = route.params;
+    console.log(hourData);
+    const fetchData = async () => {
+        try {
+            const response = await axios.request(options);
+            console.log(response.data.forecast.forecastday);
+            setData(response.data.forecast.forecastday);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+    const options = {
+        method: 'GET',
+        url: URL,
+        params: {
+            q: myLocation,
+            days: '7',
+        },
+        headers: {
+            'x-rapidapi-key': API_KEY,
+            'x-rapidapi-host': API_HOST,
+        },
     };
 
-    const ImageRender = (condition) => {
-        if(condition === "rain") {
-            return <Image style={styles.hourImage} source={require('../assets/images/rain.png')} />
-        }
-        else if (condition === "thunder") {
-            return <Image style={styles.hourImage} source={require('../assets/images/thunder.png')} />
-        }
-        else if (condition === "lighting") {
-            return <Image style={styles.hourImage} source={require('../assets/images/lighting.png')} />
-        }
-        else if (condition === "snow") {
-            return <Image style={styles.hourImage} source={require('../assets/images/snow.png')} />
-        } 
-        else if (condition === "rainy-cloud") {
-            return <Image style={styles.hourImage} source={require('../assets/images/rainy-cloud.png')} />
-        } 
-    };
-    const weekRender = ()=> {
-        return data.map((item)=> (   
-            <View key={item.day} style={styles.weekContainer} >
-            <View style={styles.weekTextContainer} >
-                <Text style={styles.daynameText}>{moment().add(item.day-1,'days').format("dddd")}</Text>
-                <Text style={styles.dateText}>{moment().add(item.day-1,'days').format("D MMM")}</Text>
-            </View>
-            <Text style={styles.tempText}>{item.temp}{'\u00b0'}</Text>
-            {ImageRender(item.condition)}
-            </View>
-            
-        ))
-    }
+    useEffect(() => {
+        Geolocation.getCurrentPosition(info => setLocationDetails(info.coords));
+    }, []);
 
-  return (
-    <SafeAreaView style={styles.container}>
-        <LinearGradient colors={['#075B94','#080745']} style={styles.linearGradient}>
-        <View style={styles.headingContainer} >
-            <Text style={styles.headingText}>Forecast report</Text>
-        </View>
-        <View style={styles.listTopContainer} >
-            <Text style={styles.todayText} >Today</Text>
-            <TouchableOpacity >
-                <Text style={styles.buttonText}  >view all</Text>
-            </TouchableOpacity>
-         </View>
-        <ScrollView horizontal={true} style={{marginHorizontal:10,marginTop:18,marginBottom:22,height: 120,}} showsHorizontalScrollIndicator={false}>
-            {hoursRender()}
-        </ScrollView>
-        <View style={styles.nextForecastTopContainer}>
-            <Text  style={styles.nextForecastText}>Next forecast</Text>
-            <TouchableOpacity style={styles.dayButton}>
-                <Text style={styles.dayButtonText}>5 day</Text>
-            </TouchableOpacity>
-        </View>
-        <ScrollView>
-                {weekRender()}
-        </ScrollView>
-        </LinearGradient>
-    </SafeAreaView>
-  )
+    useEffect(() => {
+        if (locationDetails) {
+            setMyLocation(`${locationDetails.latitude},${locationDetails.longitude}`);
+        }
+    }, [locationDetails]);
+
+    useEffect(() => {
+        if (myLocation) {
+            console.log(myLocation);
+            fetchData();
+        }
+    }, [myLocation]);
+
+    const date = new Date().getDate();
+
+    const dayNameCalc = dateif => {
+        let d = new Date(dateif);
+        let dayName = days[d.getDay()];
+        return dayName;
+    };
+
+ 
+
+    const hoursRender = () => {
+        let renderOr = false;
+        if (hourData) {
+            return hourData.map(item => {
+                if (item.time.slice(11, 13) == new Date().getHours()) {
+                    renderOr = true;
+                    return (
+                        <View key={item.time.slice(11, 13)} style={styles.hourContainer}>
+                            <Image
+                                style={styles.hourImage}
+                                source={{uri: `https:${item.condition.icon}`}}
+                            />
+                            <View style={styles.hourTextContainer}>
+                                <Text style={styles.hourTime}>
+                                    {item.time.slice(11, 13)}.00
+                                </Text>
+                                <Text style={styles.hourTemp}>
+                                    {item.temp_c}
+                                    {'\u00b0'}
+                                </Text>
+                            </View>
+                        </View>
+                    );
+                } else {
+                    if (renderOr) {
+                        return (
+                            <View
+                                key={item.time.slice(11, 13)}
+                                style={[styles.hourContainer, styles.hourContainerCurrent]}>
+                                <Image
+                                    style={styles.hourImage}
+                                    source={{uri: `https:${item.condition.icon}`}}
+                                />
+                                <View style={styles.hourTextContainer}>
+                                    <Text style={styles.hourTime}>
+                                        {item.time.slice(11, 13)}.00
+                                    </Text>
+                                    <Text style={styles.hourTemp}>
+                                        {item.temp_c}
+                                        {'\u00b0'}
+                                    </Text>
+                                </View>
+                            </View>
+                        );
+                    }
+                }
+            });
+        }
+    };
+
+    const weekRender = () => {
+        if (data) {
+            return data.map(item => (
+                <View key={item.date} style={styles.weekContainer}>
+                    <View style={styles.weekTextContainer}>
+                        <Text style={styles.daynameText}>{dayNameCalc(item.date)}</Text>
+                        <Text style={styles.dateText}>{item.date}</Text>
+                    </View>
+                    <Text style={styles.tempText}>
+                        {item.day.avgtemp_c}
+                        {'\u00b0'}
+                    </Text>
+                    <Image
+                        style={styles.hourImage}
+                        source={{uri: `http:${item.day.condition.icon}`}}
+                    />
+                </View>
+            ));
+        }
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <LinearGradient
+                colors={['#075B94', '#080745']}
+                style={styles.linearGradient}>
+                <View style={styles.headingContainer}>
+                    <Text style={styles.headingText}>Forecast report</Text>
+                </View>
+                <View style={styles.listTopContainer}>
+                    <Text style={styles.todayText}>Today</Text>
+                    <TouchableOpacity>
+                        <Text style={styles.buttonText}>view all</Text>
+                    </TouchableOpacity>
+                </View>
+                <ScrollView
+                    horizontal={true}
+                    style={{
+                        marginHorizontal: 10,
+                        marginTop: 18,
+                        marginBottom: 22,
+                        height: 120,
+                    }}
+                    showsHorizontalScrollIndicator={false}>
+                    {hoursRender()}
+                </ScrollView>
+                <View style={styles.nextForecastTopContainer}>
+                    <Text style={styles.nextForecastText}>Next forecast</Text>
+                    <TouchableOpacity style={styles.dayButton}>
+                        <Text style={styles.dayButtonText}>3 day</Text>
+                    </TouchableOpacity>
+                </View>
+                <ScrollView>{weekRender()}</ScrollView>
+            </LinearGradient>
+        </SafeAreaView>
+    );
 }
 
-
-
-  const styles = StyleSheet.create({
+const styles = StyleSheet.create({
     linearGradient: {
-        flex: 1, 
-      },
+        flex: 1,
+    },
     container: {
         flex: 1,
-      },
+    },
     headingContainer: {
         marginVertical: 26,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
     },
     headingText: {
         color: '#fff',
@@ -124,17 +210,17 @@ export default function Forecast({navigation,route}) {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginHorizontal: 18,
-      },
-      todayText: {
+    },
+    todayText: {
         color: '#fff',
         fontSize: 18,
         fontFamily: 'Gordita-Medium',
-      },
-      buttonText: {
+    },
+    buttonText: {
         color: '#07072A',
         fontSize: 12,
-        fontFamily:'Gordita-Regular'
-      },
+        fontFamily: 'Gordita-Regular',
+    },
     hourContainer: {
         maxHeight: 70,
         marginHorizontal: 8,
@@ -143,48 +229,49 @@ export default function Forecast({navigation,route}) {
         paddingVertical: 12,
         paddingHorizontal: 22,
         borderRadius: 14,
-      },
-      hourImage: {
+    },
+    hourImage: {
         width: 40,
         height: 40,
         marginRight: 12,
-      },
-      hourTime: {
+    },
+    hourTime: {
         color: '#fff',
         fontFamily: 'Gordita-Regular',
-      },
-      hourTemp: {
+    },
+    hourTemp: {
         color: '#fff',
         fontFamily: 'Gordita-Medium',
         fontSize: 18,
-      },
-      hourContainerCurrent: {
-        backgroundColor:'#075B94'
-      },
-      nextForecastTopContainer: {
+    },
+    hourContainerCurrent: {
+        backgroundColor: '#075B94',
+    },
+    nextForecastTopContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginHorizontal: 8,
         marginBottom: 16,
-      },
-      nextForecastText: {
+        marginTop: '-90%',
+    },
+    nextForecastText: {
         fontSize: 18,
         fontFamily: 'Gordita-Regular',
         color: '#fff',
-      },
-      dayButton: {
+    },
+    dayButton: {
         paddingHorizontal: 16,
         paddingVertical: 2,
-        backgroundColor:"#071946",
+        backgroundColor: '#071946',
         borderRadius: 12,
         justifyContent: 'center',
-        alignItems: 'center'
-      },
-      dayButtonText: {
-        color:'#fff',
+        alignItems: 'center',
+    },
+    dayButtonText: {
+        color: '#fff',
         fontSize: 10,
-      },
-      weekContainer: {
+    },
+    weekContainer: {
         height: 80,
         marginHorizontal: 8,
         flexDirection: 'row',
@@ -193,26 +280,24 @@ export default function Forecast({navigation,route}) {
         borderRadius: 20,
         marginBottom: 8,
         justifyContent: 'space-between',
-        alignItems: 'center'
-        
-      },
-      weekTextContainer: {
-        width: "25%"
-      },
-      daynameText: {
+        alignItems: 'center',
+    },
+    weekTextContainer: {
+        width: '25%',
+    },
+    daynameText: {
         fontFamily: 'Gordita-Regular',
         fontSize: 16,
         color: '#fff',
         marginBottom: 8,
-      },
-      dateText: {
+    },
+    dateText: {
         fontFamily: 'Gordita-Regular',
         fontSize: 12,
-        color: '#fff'
-      },
-      tempText: {
-        color: "#fff",
+        color: '#fff',
+    },
+    tempText: {
+        color: '#fff',
         fontSize: 35,
-      }
-    
-  })
+    },
+});
